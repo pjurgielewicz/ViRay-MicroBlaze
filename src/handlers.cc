@@ -9,11 +9,13 @@ BaseHandler::BaseHandler(unsigned char* ptr) : ptr(ptr)
 }
 void BaseHandler::SaveVector(const vec3& v, unsigned shift)
 {
+	xil_printf("Saving [%d, %d, %d] to %d\n\r", unsigned(v[0] * 1000), unsigned(v[1] * 1000), unsigned(v[2] * 1000), shift);
 	memcpy(ptr + shift, v.data, sizeof(vec3));
 }
 
 void BaseHandler::SaveValue(const myType& s, unsigned shift)
 {
+	xil_printf("Saving %d to %d\n\r", unsigned(s * 1000), shift);
 	memcpy(ptr + shift, &s, sizeof(myType));
 }
 
@@ -266,6 +268,12 @@ void MaterialHandler::DumpAll()
 ObjectHandler::ObjectHandler(unsigned char* transformPtr, unsigned char* objTypePtr, unsigned char* materialPtr) : transformHandler(transformPtr), materialHandler(materialPtr), objTypePtr(objTypePtr)
 {
 	objType = -1;
+
+	// Getting rid of temporary objects
+	if (transformPtr != (unsigned char*)0xA0000000)
+	{
+		uniqueIdx = nextIdx++;
+	}
 }
 
 void ObjectHandler::SetObjType(const unsigned& t)
@@ -276,8 +284,15 @@ void ObjectHandler::SetObjType(const unsigned& t)
 
 void ObjectHandler::DumpAll()
 {
+	xil_printf("Dumping object %d (obj type: %d)\n\r", uniqueIdx, objType);
+
+	xil_printf("Transform data @ %x\n\r", unsigned(transformHandler.GetBaseAddress()));
 	transformHandler.DumpAll();
+
+	xil_printf("Material data @ %x\n\r", unsigned(materialHandler.GetBaseAddress()));
 	materialHandler.DumpAll();
+
+	xil_printf("Type data %d @ %x\n\r", objType, unsigned(objTypePtr));
 	memcpy(objTypePtr, &objType, sizeof(unsigned));
 }
 
@@ -286,11 +301,17 @@ void ObjectHandler::DumpAll()
  */
 LightHandler::LightHandler(unsigned char* ptr) : BaseHandler(ptr)
 {
-	position = vec3(0.0);
-	direction = vec3(0.0, 0.0, -1.0);
-	color = vec3(50.0);
+	position 	= vec3(0.0);
+	direction 	= vec3(0.0, 0.0, -1.0);
+	color 		= vec3(50.0);
 
 	SetConeProperties(0.85, 0.7, false);
+
+	// Getting rid of temporary objects
+	if (ptr != (unsigned char*)0xA0000000)
+	{
+		uniqueIdx = nextIdx++;
+	}
 }
 
 // setters' section
@@ -337,8 +358,68 @@ void LightHandler::SetConeProperties(const myType& inner, const myType& outer, b
 
 void LightHandler::DumpAll()
 {
+	xil_printf("Light data @ %x\n\r", unsigned(GetBaseAddress()));
 	SaveVector(position, 0);
 	SaveVector(direction, 12);
 	SaveVector(color, 24);
 	SaveVector(vec3(outerAngle, outerMinusInnerInv, 0.0), 36);
+}
+
+/*
+ * CameraHandler
+ */
+
+CameraHandler::CameraHandler(XViraymain* viray, unsigned char* ptr) : BaseHandler(ptr), viray(viray)
+{
+	zoom 		= 1.0;
+	position 	= vec3(0.0);
+	lookAtDir 	= vec3(0.0, 0.0, -1.0);
+	up 			= vec3(0.0, 1.0, 0.0);
+}
+
+// setters' section
+void CameraHandler::SetZoom(const myType& s, bool isImmediate)
+{
+	zoom = s;
+	if (isImmediate)
+	{
+		XViraymain_Set_cameraZoom(viray, *((u32*)(&zoom)));
+	}
+}
+
+void CameraHandler::SetPosition(const vec3& v, bool isImmediate)
+{
+	position = v;
+	if (isImmediate)
+	{
+		SaveVector(position, 0);
+	}
+}
+
+void CameraHandler::SetLookAtDir(const vec3& v, bool isImmediate)
+{
+	lookAtDir = v.Normalize();
+	if (isImmediate)
+	{
+		SaveVector(lookAtDir, 12);
+	}
+}
+
+void CameraHandler::SetUp(const vec3& v, bool isImmediate)
+{
+	up = v;
+	if (isImmediate)
+	{
+		SaveVector(up, 24);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CameraHandler::DumpAll()
+{
+	XViraymain_Set_cameraZoom(viray, *((u32*)(&zoom)));
+	SaveVector(position, 0);
+	SaveVector(lookAtDir, 12);
+	SaveVector(up, 24);
 }
