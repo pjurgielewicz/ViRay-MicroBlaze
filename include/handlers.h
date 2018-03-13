@@ -4,6 +4,9 @@
 
 #include <string.h>
 #include "xviraymain.h"
+
+#include "material.h"
+#include "../Utils/mat4.h"
 #include "../Utils/vec3.h"
 
 class BaseHandler
@@ -61,8 +64,10 @@ public:
 
 	const bool& IsFresnelReflection() const 		{return isFresnelReflection;}
 	const bool& IsTorranceSparrowSpecular() const 	{return isTorranceSparrowSpecular;}
+	const bool& IsConductor() const 				{return isConductor;}
 
 	const myType& GetEta() const 					{return eta;}
+	const myType& GetAbsorptionCoeff() const		{return absorptionCoeff;}
 
 	const vec3& GetTexturePosition() const 			{return texturePos;}
 	const vec3& GetTextureScale() const 			{return textureScale;}
@@ -78,8 +83,9 @@ public:
 	void SetPrimaryDiffuseColor		(const vec3& v, bool isImmediate = false);
 	void SetSecondaryDiffuseColor	(const vec3& v, bool isImmediate = false);
 	void SetSpecularColor			(const vec3& v, bool isImmediate = false);
-	void SetMaterialModifier		(const bool& isFresnel, const bool& isTorranceSparrow, bool isImmediate = false);
+	void SetMaterialModifier		(const bool& isFresnel, const bool& isTorranceSparrow, const bool& isConductor, bool isImmediate = false);
 	void SetEta						(const myType& s, bool isImmediate = false);
+	void SetAbsorptionCoeff			(const myType& s, bool isImmediate = false);
 	void SetTexturePos				(const vec3& v, bool isImmediate = false);
 	void SetTextureScale			(const vec3& v, bool isImmediate = false);
 
@@ -88,6 +94,8 @@ public:
 	void DumpAll();
 
 private:
+	void UpdateEtaAbsorption();
+
 	vec3 	k;
 	myType 	exp, specularTerms;
 	myType 	sigmaSqr, A, B;
@@ -96,9 +104,9 @@ private:
 	vec3 	primaryDiffuseColor, secondaryDiffuseColor, resPrimaryDiffuseColor, resSecondaryDiffuseColor;
 	vec3 	specularColor, resSpecularColor;
 
-	bool 	isFresnelReflection, isTorranceSparrowSpecular;
+	bool 	isFresnelReflection, isTorranceSparrowSpecular, isConductor;
 	myType 	materialModifier;
-	myType 	eta, invEtaSqr;
+	myType 	eta, absorptionCoeff, invRelativeEtaSqrORExtendedAbsorptionCoeff;
 
 	vec3 	texturePos, textureScale;
 };
@@ -176,24 +184,42 @@ public:
 	// getters' section
 	const myType& GetZoom() const 		{return zoom;}
 	const vec3& GetPosition() const 	{return position;}
-	const vec3& GetLookAtDir() const 	{return lookAtDir;}
-	const vec3& GetUp() const 			{return up;}
+//	const vec3& GetLookAtDir() const 	{return lookAtDir;}
+//	const vec3& GetUp() const 			{return v;}
+	const vec3& GetU() const 			{return u;}
+	const vec3& GetV() const 			{return v;}
+	const vec3& GetW() const 			{return w;}
 
 	// setters' section
 	void SetZoom		(const myType& s, bool isImmediate = false);
 	void SetPosition	(const vec3& v, bool isImmediate = false);
-	void SetLookAtDir	(const vec3& v, bool isImmediate = false);
-	void SetUp			(const vec3& v, bool isImmediate = false);
+//	void SetLookAtDir	(const vec3& v, bool isImmediate = false);
+//	void SetUp			(const vec3& v, bool isImmediate = false);
+	void SetU			(const vec3& v, bool isImmediate = false);
+	void SetV			(const vec3& v, bool isImmediate = false);
+	void SetW			(const vec3& v, bool isImmediate = false);
+
+	void SetSpeed		(const myType& movement, const myType& rotation);
 
 	/////////////////////////////////////////////////////////////////////////////
 
 	void DumpAll();
 
+	void ApplyMovement(myType elapsedTime, unsigned gpioButtonsCodeReduced, bool isImmediate = false);
+
 private:
+
+	void RebuildCameraFrame();
+	void MoveCamera		(myType elapsedTime, unsigned gpioButtonsCodeReduced);
+	void RotateCamera	(myType elapsedTime, unsigned gpioButtonsCodeReduced);
+
 	myType 		zoom;
 	vec3 		position;
-	vec3 		lookAtDir;
-	vec3 		up;
+//	vec3 		lookAtDir;
+	vec3 		u, v, w;
+
+	myType 		movementSpeed;
+	myType 		rotationSpeed;
 
 	XViraymain* viray;
 };
