@@ -408,8 +408,10 @@ CameraHandler::CameraHandler(XViraymain* viray, unsigned char* ptr) :
 		viray(viray)
 {
 	zoom 		= 1.0;
+	nearPlane	= 1.0;
+
 	position 	= vec3(0.0);
-//	lookAtDir 	= vec3(0.0, 0.0, -1.0).Normalize();
+
 	u			= vec3(1.0, 0.0, 0.0);
 	v 			= vec3(0.0, 1.0, 0.0);
 	w			= vec3(0.0, 0.0, 1.0);
@@ -430,6 +432,15 @@ void CameraHandler::SetZoom(const myType& s, bool isImmediate)
 	}
 }
 
+void CameraHandler::SetNearPlane(const myType& s, bool isImmediate)
+{
+	nearPlane = s;
+	if (isImmediate)
+	{
+		XViraymain_Set_nearPlane(viray, *((u32*)(&nearPlane)));
+	}
+}
+
 void CameraHandler::SetPosition(const vec3& v, bool isImmediate)
 {
 	position = v;
@@ -439,25 +450,6 @@ void CameraHandler::SetPosition(const vec3& v, bool isImmediate)
 	}
 }
 
-//void CameraHandler::SetLookAtDir(const vec3& v, bool isImmediate)
-//{
-//	lookAtDir = v.Normalize();
-//	RebuildCameraFrame();
-//	if (isImmediate)
-//	{
-//		SaveVector(lookAtDir, 12);
-//	}
-//}
-//
-//void CameraHandler::SetUp(const vec3& v, bool isImmediate)
-//{
-//	this->v = v.Normalize();
-//	RebuildCameraFrame();
-//	if (isImmediate)
-//	{
-//		SaveVector(this->v, 24);
-//	}
-//}
 void CameraHandler::SetU(const vec3& v, bool isImmediate)
 {
 	this->u = v;
@@ -496,7 +488,10 @@ void CameraHandler::SetSpeed(const myType& movement, const myType& rotation)
 void CameraHandler::DumpAll()
 {
 	XViraymain_Set_cameraZoom(viray, *((u32*)(&zoom)));
+	XViraymain_Set_nearPlane(viray, *((u32*)(&nearPlane)));
+
 	SaveVector(position, 0);
+
 	SaveVector(u, 12);
 	SaveVector(v, 24);
 	SaveVector(w, 36);

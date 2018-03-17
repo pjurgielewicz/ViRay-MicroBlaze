@@ -183,18 +183,16 @@ public:
 
 	// getters' section
 	const myType& GetZoom() const 		{return zoom;}
+	const myType& GetNearPlane() const	{return nearPlane;}
 	const vec3& GetPosition() const 	{return position;}
-//	const vec3& GetLookAtDir() const 	{return lookAtDir;}
-//	const vec3& GetUp() const 			{return v;}
 	const vec3& GetU() const 			{return u;}
 	const vec3& GetV() const 			{return v;}
 	const vec3& GetW() const 			{return w;}
 
 	// setters' section
 	void SetZoom		(const myType& s, bool isImmediate = false);
+	void SetNearPlane	(const myType& s, bool isImmediate = false);
 	void SetPosition	(const vec3& v, bool isImmediate = false);
-//	void SetLookAtDir	(const vec3& v, bool isImmediate = false);
-//	void SetUp			(const vec3& v, bool isImmediate = false);
 	void SetU			(const vec3& v, bool isImmediate = false);
 	void SetV			(const vec3& v, bool isImmediate = false);
 	void SetW			(const vec3& v, bool isImmediate = false);
@@ -214,8 +212,8 @@ private:
 	void RotateCamera	(myType elapsedTime, unsigned gpioButtonsCodeReduced);
 
 	myType 		zoom;
+	myType		nearPlane;
 	vec3 		position;
-//	vec3 		lookAtDir;
 	vec3 		u, v, w;
 
 	myType 		movementSpeed;

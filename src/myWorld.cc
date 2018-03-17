@@ -148,5 +148,6 @@ void MyWorld::SetupCamera()
 	CameraHandler& c = GetCameraHandler();
 	c.SetZoom(1.0);
 	c.SetPosition(vec3(2.0, 0.0, 7.0));
+//	c.SetNearPlane(2.0);
 }
 
