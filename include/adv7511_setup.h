@@ -22,16 +22,19 @@ typedef u8 AddressType;
 #define PAGE_SIZE					16
 #define EEPROM_TEST_START_ADDRESS	0x80
 
+#define READBACK_ENABLE
 
 class I2C{
 public:
 	I2C(){}
 	int Init();
 
+#ifdef READBACK_ENABLE
 	//SEE:
 	// https://github.com/Xilinx/embeddedsw/blob/master/XilinxProcessorIPLib/drivers/iic/examples/xiic_low_level_dynamic_eeprom_example.c
 	u8 EepromReadByte(u8 *BufferPtr, u8 ByteCount);
 	u8 EepromReadByte(AddressType Address, u8 *BufferPtr, u8 ByteCount);
+#endif
 
 private:
 	/*****************************************************************************/

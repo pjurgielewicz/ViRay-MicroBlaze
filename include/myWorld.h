@@ -6,7 +6,7 @@
 class MyWorld : public WorldDescription
 {
 public:
-	MyWorld(XViraymain* viray, XGpio* gpio, unsigned gpioButtonsChannel);
+	MyWorld(XViraymain* viray = nullptr, XGpio* gpio = nullptr, unsigned gpioButtonsChannel = 1);
 	virtual ~MyWorld();
 
 	void Animate(myType elapsedTime, unsigned gpioButtonsCode);

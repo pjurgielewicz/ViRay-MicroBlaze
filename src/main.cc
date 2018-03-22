@@ -5,23 +5,103 @@
 #include "../include/adv7511_setup.h"
 #include "../include/vdma.h"
 
-#define FRAME_ADDR ((unsigned*)0x90000000)
-#define PLACEHOLDER_HEIGHT 1080
-#define PLACEHOLDER_WIDTH 1920
+#include "xparameters.h"
+#include "xil_cache.h"
+#include "mb_interface.h"
+
+#include "xviraymain.h"
+#include "xviraymain_hw.h"
+#include "xgpio.h"
+
+#include "TextureGenerator.h"
+#include "mat4.h"
+#include "vec3.h"
+
+#include "../include/myWorld.h"
+
+/*
+ * REQUIRED RESETS
+ */
+unsigned ObjectHandler::nextIdx = 0;
+unsigned LightHandler::nextIdx 	= 0;
+
+bool loopedExecution = true;
+
+//#define DEBUG_PATTERN
+
+#ifdef DEBUG_PATTERN
+
+#define FRAME_ADDR 			OUT_COLOR_ADDR
+#define PLACEHOLDER_HEIGHT 	HEIGHT
+#define PLACEHOLDER_WIDTH 	WIDTH
+
+#endif
+
+// GLOBAL OBJECTS
+
+XGpio_Config* gpioConf;
+XGpio gpio;
+
+XViraymain_Config *virayConfig;
+XViraymain viray;
+
+I2C ic2Obj;
+VDMA vdmaObj;
 
 int main()
 {
-	xil_printf("ASDFAS\n\r");
+	/*
+	 * GPIO INIT
+	 */
+	gpioConf = XGpio_LookupConfig(XPAR_AXI_GPIO_0_DEVICE_ID);
 
-	I2C ic2Obj;
+	if (!gpioConf){
+		xil_printf("GPIO: %u not found!\n\r", XPAR_AXI_GPIO_0_DEVICE_ID);
+		return XST_FAILURE;
+	}
+	if (XGpio_CfgInitialize(&gpio, gpioConf, gpioConf->BaseAddress) != XST_SUCCESS)
+	{
+		xil_printf("GPIO: %u not initialized properly!\n\r", XPAR_AXI_GPIO_0_DEVICE_ID);
+		return XST_FAILURE;
+	}
+
+	/*
+	 * VIRAY CORE INIT
+	 */
+	virayConfig = XViraymain_LookupConfig(XPAR_XVIRAYMAIN_0_DEVICE_ID);
+	if (virayConfig)
+	{
+		XViraymain_CfgInitialize(&viray, virayConfig);
+	}
+	else
+	{
+		xil_printf("Error while initializing access to the VIRAY device!\n\r");
+		return XST_FAILURE;
+	}
+
+	/*
+	 * ========================================================================
+	 * 					VIRAY WORLD SETUP (DATA BINDINGS ALSO)
+	 * ========================================================================
+	 */
+#ifndef DEBUG_PATTERN
+	MyWorld myWorld(&viray, &gpio, 1);
+#endif
+	/*
+	 * ========================================================================
+	 * 							PIXEL DATA TRANSFER STUFF
+	 * ========================================================================
+	 */
+
+	/*
+	 * ADV7511 setup over I2C bus
+	 */
 	if (ic2Obj.Init() != XST_SUCCESS) 		return XST_FAILURE;
 
-	xil_printf("1");
-
-	VDMA vdmaObj;
+	/*
+	 * Start VDMA engine
+	 */
 	if (vdmaObj.Init() != XST_SUCCESS) 		return XST_FAILURE;
-
-	xil_printf("2");
 
 	xil_printf("Starting VDMA...\n\r");
 	if (vdmaObj.Start() != XST_SUCCESS)
@@ -30,7 +110,16 @@ int main()
 		return XST_FAILURE;
 	}
 
-	xil_printf("aasd\n\r");
+	/*
+	 * ========================================================================
+	 * 							START RENDERING
+	 * ========================================================================
+	 */
+
+#ifdef DEBUG_PATTERN
+	/*
+	 * Test pattern-generator
+	 */
 
 	float hInv = 1.0f / PLACEHOLDER_HEIGHT;
 	float wInv = 1.0f / PLACEHOLDER_WIDTH;
@@ -39,9 +128,7 @@ int main()
 	{
 		unsigned* p = (unsigned*) FRAME_ADDR;
 
-		unsigned G; // G
-		unsigned R; // R
-		unsigned B; // B
+		unsigned R, G, B;
 		unsigned color;
 
 		u8 readReg;
@@ -50,7 +137,7 @@ int main()
 
 		for (unsigned j = 0; j < PLACEHOLDER_HEIGHT; ++j)
 		{
-			G = 0;//(255 * j) * hInv;
+			G = (255 * j) * hInv;
 			B = (255 * j) * hInv;
 
 			for (unsigned i = 0; i < PLACEHOLDER_WIDTH; ++i)
@@ -72,6 +159,13 @@ int main()
 			}
 		}
 	}
+#else
+	/*
+	 * Run real engine
+	 */
+
+	myWorld.RunViRay(loopedExecution);
+#endif
 
 	return 0;
 }

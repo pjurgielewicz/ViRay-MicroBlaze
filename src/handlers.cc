@@ -418,8 +418,8 @@ CameraHandler::CameraHandler(XViraymain* viray, unsigned char* ptr) :
 
 //	RebuildCameraFrame();
 
-	movementSpeed = myType(1.0);
-	rotationSpeed = myType(1.0);
+	movementSpeed = myType(100.0);
+	rotationSpeed = myType(0.1);
 }
 
 // setters' section
@@ -437,7 +437,7 @@ void CameraHandler::SetNearPlane(const myType& s, bool isImmediate)
 	nearPlane = s;
 	if (isImmediate)
 	{
-		XViraymain_Set_nearPlane(viray, *((u32*)(&nearPlane)));
+		XViraymain_Set_cameraNearPlane(viray, *((u32*)(&nearPlane)));
 	}
 }
 
@@ -488,7 +488,7 @@ void CameraHandler::SetSpeed(const myType& movement, const myType& rotation)
 void CameraHandler::DumpAll()
 {
 	XViraymain_Set_cameraZoom(viray, *((u32*)(&zoom)));
-	XViraymain_Set_nearPlane(viray, *((u32*)(&nearPlane)));
+	XViraymain_Set_cameraNearPlane(viray, *((u32*)(&nearPlane)));
 
 	SaveVector(position, 0);
 

@@ -103,7 +103,7 @@ void MyWorld::SpawnObjects()
 	sphere.GetMaterialHandler().SetK(vec3(1.0, 1.0, 0.3));
 	sphere.GetMaterialHandler().SetExp(100);
 	sphere.GetMaterialHandler().SetEta(1.33);
-	sphere.GetMaterialHandler().SetMaterialModifier(true, true, true);
+	sphere.GetMaterialHandler().SetMaterialModifier(true, false, false);
 	sphere.GetMaterialHandler().SetAbsorptionCoeff(2.0);
 	sphere.GetMaterialHandler().SetSigmaSqr(0.5);
 
@@ -148,6 +148,7 @@ void MyWorld::SetupCamera()
 	CameraHandler& c = GetCameraHandler();
 	c.SetZoom(1.0);
 	c.SetPosition(vec3(2.0, 0.0, 7.0));
+	c.SetSpeed(5000, 0.05);
 //	c.SetNearPlane(2.0);
 }
 
