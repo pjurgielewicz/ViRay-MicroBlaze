@@ -535,45 +535,45 @@ void CameraHandler::RebuildCameraFrame()
 
 void CameraHandler::MoveCamera(myType elapsedTime, unsigned gpioButtonsCodeReduced)
 {
-	myType speed = movementSpeed * elapsedTime;
+	myType delta = movementSpeed * elapsedTime;
 
 	if ((gpioButtonsCodeReduced == 0x01 || gpioButtonsCodeReduced == 0x04) &&
-		(gpioButtonsCodeReduced == 0x02 || gpioButtonsCodeReduced == 0x08)) speed *= myType(0.7071067);
+		(gpioButtonsCodeReduced == 0x02 || gpioButtonsCodeReduced == 0x08)) delta *= myType(0.7071067);
 
 	// LEFT-RIGHT
 	if (gpioButtonsCodeReduced & 0x01)
 	{
-		position -= u * speed;
+		position -= u * delta;
 	}
 	else if (gpioButtonsCodeReduced & 0x04)
 	{
-		position += u * speed;
+		position += u * delta;
 	}
 	// BACK-FORWARD
 	if (gpioButtonsCodeReduced & 0x08)
 	{
-		position -= w * speed;
+		position -= w * delta;
 	}
 	else if (gpioButtonsCodeReduced & 0x02)
 	{
-		position += w * speed;
+		position += w * delta;
 	}
 }
 
 void CameraHandler::RotateCamera(myType elapsedTime, unsigned gpioButtonsCodeReduced)
 {
 	mat4 rot;
-	myType speed = rotationSpeed;
+	myType delta = rotationSpeed * elapsedTime;
 
-	if (gpioButtonsCodeReduced & 0x01 || gpioButtonsCodeReduced & 0x04) 	// Y-AXIS ROTATION
+	if (gpioButtonsCodeReduced & 0x01 || gpioButtonsCodeReduced & 0x04) 	// GLOBAL Y-AXIS ROTATION
 	{
-		speed = (gpioButtonsCodeReduced & 0x01) ? speed : -speed;
-		rot.RotationMatrix(speed, v);
+		delta = (gpioButtonsCodeReduced & 0x01) ? delta : -delta;
+		rot.RotationMatrix(delta, vec3(0.0, 1.0, 0.0));
 	}
-	else																	// X-AXIS ROTATION
+	else																	// LOCAL X-AXIS ROTATION
 	{
-		speed = (gpioButtonsCodeReduced & 0x02) ? -speed : speed;
-		rot.RotationMatrix(speed, u);
+		delta = (gpioButtonsCodeReduced & 0x02) ? -delta : delta;
+		rot.RotationMatrix(delta, u);
 	}
 
 	u = (rot * u).Normalize();

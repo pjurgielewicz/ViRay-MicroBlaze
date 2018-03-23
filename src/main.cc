@@ -48,6 +48,9 @@ XViraymain viray;
 I2C ic2Obj;
 VDMA vdmaObj;
 
+ObjectHandler objs[OBJ_NUM];
+LightHandler lights[LIGHTS_NUM];
+
 int main()
 {
 	/*
@@ -85,7 +88,7 @@ int main()
 	 * ========================================================================
 	 */
 #ifndef DEBUG_PATTERN
-	MyWorld myWorld(&viray, &gpio, 1);
+	MyWorld myWorld(objs, lights, &viray, &gpio, 1);
 #endif
 	/*
 	 * ========================================================================

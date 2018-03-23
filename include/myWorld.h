@@ -6,7 +6,7 @@
 class MyWorld : public WorldDescription
 {
 public:
-	MyWorld(XViraymain* viray = nullptr, XGpio* gpio = nullptr, unsigned gpioButtonsChannel = 1);
+	MyWorld(ObjectHandler* objs, LightHandler* lights,  XViraymain* viray = nullptr, XGpio* gpio = nullptr, unsigned gpioButtonsChannel = 1);
 	virtual ~MyWorld();
 
 	void Animate(myType elapsedTime, unsigned gpioButtonsCode);
@@ -18,12 +18,20 @@ private:
 	void GenerateTextures();
 	void SetupCamera();
 
-	LightHandler ambient;
-	LightHandler omni;
+	LightHandler& ambient;
+	LightHandler& omni;
 
-	ObjectHandler sphere;
-	ObjectHandler cylinder;
-	ObjectHandler plane;
+//	ObjectHandler sphere;
+	ObjectHandler& cylinder;
+	ObjectHandler& floor;
+	ObjectHandler& ceiling;
+
+	ObjectHandler& redBall;
+	ObjectHandler& greenBall;
+	ObjectHandler& blueBall;
+	ObjectHandler& topBall;
+
+	ObjectHandler& cone;
 };
 
 #endif
