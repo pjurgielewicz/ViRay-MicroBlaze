@@ -139,6 +139,8 @@ void MaterialHandler::SetKDiffuse(const myType& s, bool isImmediate)
 void MaterialHandler::SetKSpecular(const myType& s, bool isImmediate)
 {
 	k[2] = s;
+	if (k[2] >= myType(1.0)) k[2] = 0.99f; // Clamp
+
 	resSpecularColor = specularColor * k[2];
 	specularTerms = k[2] + exp;
 
@@ -307,6 +309,10 @@ ObjectHandler::ObjectHandler(unsigned char* transformPtr, unsigned char* objType
 	if (transformPtr != (unsigned char*)0xA0000000)
 	{
 		uniqueIdx = nextIdx++;
+		if (uniqueIdx >= OBJ_NUM)
+		{
+			xil_printf("ERROR:\n\n\rWRONG OBJECT INDEX - %d EXCEEDS MAXIMUM %d\n\n\r", uniqueIdx + 1, OBJ_NUM);
+		}
 	}
 }
 
@@ -345,6 +351,10 @@ LightHandler::LightHandler(unsigned char* ptr) : BaseHandler(ptr)
 	if (ptr != (unsigned char*)0xA0000000)
 	{
 		uniqueIdx = nextIdx++;
+		if (uniqueIdx >= LIGHTS_NUM)
+		{
+			xil_printf("ERROR:\n\n\rWRONG LIGHT INDEX - %d EXCEEDS MAXIMUM %d\n\n\r", uniqueIdx + 1, LIGHTS_NUM);
+		}
 	}
 }
 

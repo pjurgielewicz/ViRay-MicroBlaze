@@ -61,14 +61,14 @@ MyWorld::~MyWorld()
 void MyWorld::Animate(myType elapsedTime, unsigned gpioButtonsCode)
 {
 	/*
-	 * Animate world accordingly
-	 */
-
-	/*
 	 * REACT TO USER MOVEMENT
 	 */
 	CameraHandler& cam = GetCameraHandler();
 	cam.ApplyMovement(elapsedTime, gpioButtonsCode, true);
+
+#ifdef UC_DIAGNOSTIC_DEBUG
+	if (gpioButtonsCode) xil_printf("Button code: %x", gpioButtonsCode);
+#endif
 
 	/*
 	 * ANIMATE OMNI LIGHT
@@ -84,17 +84,17 @@ void MyWorld::Animate(myType elapsedTime, unsigned gpioButtonsCode)
 
 	static myType totalTime = 0.0f;
 
+	totalTime += 0.3f * elapsedTime;
+	if (totalTime > TWOPI) totalTime -= TWOPI;
+
 	mat4 positionRotation;
 	vec3 omniPos = omni.GetPosition();
-	positionRotation.RotationMatrix(300.0f * elapsedTime, vec3(0.0f, 1.0f, 0.0f));
+	positionRotation.RotationMatrix(0.3f * elapsedTime, vec3(0.0f, 1.0f, 0.0f));
 	vec3 newOmniPosition = positionRotation * omniPos;
 	omniPos[1] = 4.0f + 5.0f * std::sin(totalTime);
 
 	omni.SetPosition(newOmniPosition, true);
 	omni.SetDirection(-newOmniPosition, true);
-
-	totalTime += 300.0f * elapsedTime;
-	if (totalTime > TWOPI) totalTime -= TWOPI;
 
 	/*
 	 * SCALE WALLS
@@ -106,22 +106,21 @@ void MyWorld::Animate(myType elapsedTime, unsigned gpioButtonsCode)
 	/*
 	 * SHIFT TEXTURE
 	 */
+	const float textureShiftSpeed = 0.01f;
+
 	vec3 texturePos = floor.GetMaterialHandler().GetTexturePosition();
-	texturePos += vec3(10.0f * elapsedTime);
+	texturePos += vec3(textureShiftSpeed * elapsedTime);
 	for (unsigned i = 0; i < 3; ++i)
 	{
 		if (texturePos[i] > 1.0f) texturePos -= 1.0f;
 	}
 	floor.GetMaterialHandler().SetTexturePos(texturePos, true);
-
-#ifdef UC_DIAGNOSTIC_DEBUG
-	if (gpioButtonsCode) xil_printf("Button code: %x", gpioButtonsCode);
-#endif
 }
 
 void MyWorld::PostAnimate(myType elapsedTime)
 {
-
+	// Consume dummy cycles - data does not need to be computed all the time
+	for (unsigned i = 0; i < 5000; ++i);
 }
 
 void MyWorld::SpawnLights()
@@ -129,14 +128,15 @@ void MyWorld::SpawnLights()
 #define NEXT_HANDLER(x) (x = LightHandler(GetNextLightAddress()))
 
 	NEXT_HANDLER(ambient);
-	ambient.SetColor(vec3(0.1, 0.1, 0.1));
+	ambient.SetColor(vec3(0.1f, 0.1f, 0.1f));
 
 	NEXT_HANDLER(omni);
 	omni.SetPosition(vec3(4.0f));
 	omni.SetDirection(vec3(-1.0f));
-	omni.SetColor(vec3(240.0));
-//	omni.SetConeProperties(0.85, 0.7);
-	omni.SetConeProperties(1.0, 0.0);
+	omni.SetColor(vec3(240.0f));
+//	omni.SetConeProperties(0.85f, 0.7f);
+//	omni.SetConeProperties(1.0f, 0.0f);
+	omni.SetConeProperties(-1.0f, -1.0f);
 
 #undef NEXT_HANDLER
 
@@ -181,16 +181,22 @@ void MyWorld::SpawnObjects()
 	cylinder.GetTransformHandler().SetOrientation(vec3(0.0f, 1.0f, 0.0f));
 	cylinder.GetTransformHandler().SetScale(vec3(roomSizeXZ, 4.5f, roomSizeXZ));
 
+	cylinder.GetMaterialHandler().SetAmbientColor(vec3(1.0f));
+	cylinder.GetMaterialHandler().SetPrimaryDiffuseColor(vec3(0.5f, 1.0f, 0.0f));
+	cylinder.GetMaterialHandler().SetSecondaryDiffuseColor(vec3(0.0f));
+	cylinder.GetMaterialHandler().SetSpecularColor(vec3(1.0f));
+	cylinder.GetMaterialHandler().SetK(vec3(0.1f, 0.7f, 0.3f));
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	NEXT_HANDLER(floor);
 	floor.SetObjType(ObjectType::DISK);
-	floor.GetTransformHandler().SetTranslation(vec3(0.0, -2.0, 0.0));
-	floor.GetTransformHandler().SetOrientation(vec3(0.0, 1.0, 0.0));
+	floor.GetTransformHandler().SetTranslation(vec3(0.0f, -2.0f, 0.0f));
+	floor.GetTransformHandler().SetOrientation(vec3(0.0f, 1.0f, 0.0f));
 	floor.GetTransformHandler().SetScale(vec3(roomSizeXZ));
 
-	floor.GetMaterialHandler().SetPrimaryDiffuseColor(vec3(0.9));
-	floor.GetMaterialHandler().SetSecondaryDiffuseColor(vec3(0.1));
+	floor.GetMaterialHandler().SetPrimaryDiffuseColor(vec3(0.9f));
+	floor.GetMaterialHandler().SetSecondaryDiffuseColor(vec3(0.1f));
 	floor.GetMaterialHandler().SetTextureScale(vec3(6.0f));
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +238,10 @@ void MyWorld::SpawnObjects()
 	blueBall.GetMaterialHandler().SetAmbientColor(vec3(1.0f));
 	blueBall.GetMaterialHandler().SetPrimaryDiffuseColor(vec3(0.2f, 0.2f, 1.0f));
 	blueBall.GetMaterialHandler().SetSecondaryDiffuseColor(vec3(1.0f, 1.0f, 1.0f));
-	blueBall.GetMaterialHandler().SetSpecularColor(vec3(1.0f));
+	blueBall.GetMaterialHandler().SetSpecularColor(vec3(0.5f));
+	blueBall.GetMaterialHandler().SetKSpecular(0.3f);
+	blueBall.GetMaterialHandler().SetExp(100.0f);
+//	blueBall.GetMaterialHandler().SetSigmaSqr(100.0f);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -252,12 +261,14 @@ void MyWorld::SpawnObjects()
 
 	NEXT_HANDLER(ceiling);
 	ceiling.SetObjType(ObjectType::SPHERE);
-	ceiling.GetTransformHandler().SetTranslation(vec3(0.0f, -6.5f, 0.0f));
+	ceiling.GetTransformHandler().SetTranslation(vec3(0.0f, -11.5f, 0.0f));
 	ceiling.GetTransformHandler().SetOrientation(vec3(0.0f, 1.0f, 0.0f));
-	ceiling.GetTransformHandler().SetScale(vec3(roomSizeXZ * 1.5f));
+	ceiling.GetTransformHandler().SetScale(vec3(roomSizeXZ * 1.25f));
 
 	ceiling.GetMaterialHandler().SetPrimaryDiffuseColor(vec3(0.9f));
 	ceiling.GetMaterialHandler().SetSecondaryDiffuseColor(vec3(0.1f));
+	ceiling.GetMaterialHandler().SetSpecularColor(vec3(0.0f, 0.8f, 0.8f));
+	ceiling.GetMaterialHandler().SetK(vec3(0.1f, 0.7f, 0.3f));
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -296,7 +307,7 @@ void MyWorld::SetupCamera()
 	CameraHandler& c = GetCameraHandler();
 	c.SetZoom(1.0);
 	c.SetPosition(vec3(2.0, 0.0, 7.0));
-	c.SetSpeed(5000, 2000);
+	c.SetSpeed(5, 2);
 //	c.SetNearPlane(2.0);
 }
 

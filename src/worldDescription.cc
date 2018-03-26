@@ -90,32 +90,49 @@ void WorldDescription::RunViRay(bool enableAutoRestart)
 			// TOTAL ELAPSED TIME
 			elapsedTime = animationTime + postAnimationTime;
 
-			xil_printf("Last update duration: %d [us]\n\r", unsigned(elapsedTime * 1e6));
+			// update takes 100s of us which is << 60 ms
+//			xil_printf("Last update duration: %d [us]\n\r", unsigned(elapsedTime * 1e6));
 		}
 	}
 }
 
 void WorldDescription::AssignLight(LightHandler* h)
 {
-	lights[h->GetObjIdx()] = h;
+	if (h->GetObjIdx() < LIGHTS_NUM)
+	{
+		lights[h->GetObjIdx()] = h;
+	}
+	else
+	{
+		xil_printf("ERROR:\n\n\r LIGHT #%d CAN NOT BE SAVED", h->GetObjIdx() + 1);
+	}
 }
 
 void WorldDescription::AssignObject(ObjectHandler* h)
 {
-	objects[h->GetObjIdx()] = h;
+	if (h->GetObjIdx() < OBJ_NUM)
+	{
+		objects[h->GetObjIdx()] = h;
+	}
+	else
+	{
+		xil_printf("ERROR:\n\n\r OBJECT #%d CAN NOT BE SAVED", h->GetObjIdx() + 1);
+	}
 }
 
 void WorldDescription::DumpAll()
 {
-	xil_printf("Dumping lights:\n\r");
-	for (unsigned i = 0; i < LightHandler::nextIdx; ++i)
+	unsigned maxLightIdx = (LightHandler::nextIdx > LIGHTS_NUM ? LIGHTS_NUM : LightHandler::nextIdx);
+	xil_printf("Dumping #%d lights:\n\r", maxLightIdx);
+	for (unsigned i = 0; i < maxLightIdx; ++i)
 	{
 		xil_printf("##%d\n\r", i);
 		lights[i]->DumpAll();
 	}
 
-	xil_printf("Dumping objects:\n\r");
-	for (unsigned i = 0; i < ObjectHandler::nextIdx; ++i)
+	unsigned maxObjectIdx = (ObjectHandler::nextIdx > OBJ_NUM ? OBJ_NUM : ObjectHandler::nextIdx);
+	xil_printf("Dumping #%d objects:\n\r", maxObjectIdx);
+	for (unsigned i = 0; i < maxObjectIdx; ++i)
 	{
 		xil_printf("##%d\n\r", i);
 		objects[i]->DumpAll();

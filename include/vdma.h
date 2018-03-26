@@ -93,6 +93,8 @@
 #include "xparameters.h"
 #include "xil_exception.h"
 
+#include "../include/worldDescription.h"
+
 /******************** Constant Definitions **********************************/
 
 /*
@@ -111,7 +113,7 @@
  *
  * For 16 frames of 1080p, it needs 0x07E90000 memory for frame buffers
  */
-#define MEM_BASE_ADDR		(DDR_BASE_ADDR + 0x10000000)
+#define MEM_BASE_ADDR		((unsigned)OUT_COLOR_ADDR)
 #define MEM_HIGH_ADDR		DDR_HIGH_ADDR
 #define MEM_SPACE		    (MEM_HIGH_ADDR - MEM_BASE_ADDR)
 
@@ -124,8 +126,8 @@
 
 /* Frame size related constants
  */
-#define FRAME_HORIZONTAL_LEN  (4 * 1920)   /* 1920 pixels, each pixel 4 bytes */
-#define FRAME_VERTICAL_LEN    (1080)    /* 1080 pixels */
+#define FRAME_HORIZONTAL_LEN  (4 * WIDTH)   /* 1920 pixels, each pixel 4 bytes */
+#define FRAME_VERTICAL_LEN    (HEIGHT)    /* 1080 pixels */
 
 /* Subframe to be transferred by Video DMA
  *
