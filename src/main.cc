@@ -30,11 +30,7 @@ bool loopedExecution = true;
 //#define DEBUG_PATTERN
 
 #ifdef DEBUG_PATTERN
-
 #define FRAME_ADDR 			OUT_COLOR_ADDR
-#define PLACEHOLDER_HEIGHT 	HEIGHT
-#define PLACEHOLDER_WIDTH 	WIDTH
-
 #endif
 
 // GLOBAL OBJECTS
@@ -45,7 +41,7 @@ XGpio gpio;
 XViraymain_Config *virayConfig;
 XViraymain viray;
 
-I2C ic2Obj;
+I2C i2CObj;
 VDMA vdmaObj;
 
 ObjectHandler objs[OBJ_NUM];
@@ -88,7 +84,7 @@ int main()
 	 * ========================================================================
 	 */
 #ifndef DEBUG_PATTERN
-	MyWorld myWorld(objs, lights, &viray, &gpio, 1);
+	MyWorld myWorld(objs, lights, &viray, &gpio, &i2CObj, 1);
 #endif
 	/*
 	 * ========================================================================
@@ -99,7 +95,7 @@ int main()
 	/*
 	 * ADV7511 setup over I2C bus
 	 */
-	if (ic2Obj.Init() != XST_SUCCESS) 		return XST_FAILURE;
+	if (i2CObj.Init() != XST_SUCCESS) 		return XST_FAILURE;
 
 	/*
 	 * Start VDMA engine
@@ -124,8 +120,8 @@ int main()
 	 * Test pattern-generator
 	 */
 
-	float hInv = 1.0f / PLACEHOLDER_HEIGHT;
-	float wInv = 1.0f / PLACEHOLDER_WIDTH;
+	float hInv = 1.0f / HEIGHT;
+	float wInv = 1.0f / WIDTH;
 
 	for (;;)
 	{
@@ -135,15 +131,20 @@ int main()
 		unsigned color;
 
 		u8 readReg;
-		ic2Obj.EepromReadByte((AddressType)0x3D, &readReg, 1);
+		i2CObj.EepromReadByte((AddressType)0x3D, &readReg, 1);
 		xil_printf("VIC: %X = %X\n\r", 0x3D, readReg);
 
-		for (unsigned j = 0; j < PLACEHOLDER_HEIGHT; ++j)
+		/*
+		 * Hot Plug Detect handling
+		 */
+		i2CObj.Refresh();
+
+		for (unsigned j = 0; j < HEIGHT; ++j)
 		{
-			G = (255 * j) * hInv;
+			G = 0;//(255 * j) * hInv;
 			B = (255 * j) * hInv;
 
-			for (unsigned i = 0; i < PLACEHOLDER_WIDTH; ++i)
+			for (unsigned i = 0; i < WIDTH; ++i)
 			{
 				R = (255 * i) * wInv;
 
@@ -158,7 +159,7 @@ int main()
 //					color = (R << 8) + G;
 				}
 
-				p[PLACEHOLDER_WIDTH * j + i] = color;
+				p[WIDTH * j + i] = color;
 			}
 		}
 	}

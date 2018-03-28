@@ -4,6 +4,7 @@
 #include "xviraymain.h"
 #include "xgpio.h"
 
+#include "../include/adv7511_setup.h"
 #include "handlers.h"
 #include "AXITimerHelper.h"
 #include "TextureGenerator.h"
@@ -25,10 +26,12 @@
 
 #define OUT_COLOR_ADDR 					((unsigned char*)XPAR_MIG_0_BASEADDR + (0x10000000))
 
+class I2C;
+
 class WorldDescription
 {
 public:
-	WorldDescription(XViraymain* viray, XGpio* gpio, unsigned gpioButtonsChannel);
+	WorldDescription(XViraymain* viray, XGpio* gpio, I2C* i2c, unsigned gpioButtonsChannel);
 	~WorldDescription();
 
 	virtual void Animate(myType elapsedTime, unsigned gpioButtonCode) = 0;
@@ -48,11 +51,7 @@ protected:
 	CTextureHelper& GetTextureHelper() 	{return textureHelper;}
 	CameraHandler& GetCameraHandler() 	{return camera;}
 	CAXITimerHelper& GetTimer()			{return timer;}
-
-	const unsigned LightStructureSize 			= 48;
-	const unsigned TransformationStructureSize 	= 48;
-	const unsigned ObjectTypeSize				= 4;
-	const unsigned MaterialStructureSize 		= 96;
+	I2C& GetI2C()						{return *i2c;}
 
 private:
 	unsigned GetGPIOButtonCode() const					{return XGpio_DiscreteRead(gpio, gpioButtonsChannel);}
@@ -66,7 +65,13 @@ private:
 
 	XViraymain* 	viray;
 	XGpio*			gpio;
+	I2C*			i2c;
 	const unsigned  gpioButtonsChannel;
+
+	const unsigned LightStructureSize 			= 48;
+	const unsigned TransformationStructureSize 	= 48;
+	const unsigned ObjectTypeSize				= 4;
+	const unsigned MaterialStructureSize 		= 96;
 };
 
 #endif

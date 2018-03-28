@@ -36,8 +36,8 @@
 //};
 
 
-MyWorld::MyWorld(ObjectHandler* objs, LightHandler* lights, XViraymain* viray, XGpio* gpio, unsigned gpioButtonsChannel) :
-	WorldDescription(viray, gpio, gpioButtonsChannel),
+MyWorld::MyWorld(ObjectHandler* objs, LightHandler* lights, XViraymain* viray, XGpio* gpio, I2C* i2c, unsigned gpioButtonsChannel) :
+	WorldDescription(viray, gpio, i2c, gpioButtonsChannel),
 	cylinder(objs[0]),
 	floor(objs[1]),
 	redBall(objs[2]), greenBall(objs[3]), blueBall(objs[4]), topBall(objs[5]),
@@ -120,7 +120,13 @@ void MyWorld::Animate(myType elapsedTime, unsigned gpioButtonsCode)
 void MyWorld::PostAnimate(myType elapsedTime)
 {
 	// Consume dummy cycles - data does not need to be computed all the time
-	for (unsigned i = 0; i < 5000; ++i);
+//	for (unsigned i = 0; i < 5000; ++i);
+
+	/*
+	 * I2C communication consumes significant amount of cycles but it is still
+	 * much below frame rendering time (~~50-60 ms)
+	 */
+	GetI2C().Refresh();
 }
 
 void MyWorld::SpawnLights()

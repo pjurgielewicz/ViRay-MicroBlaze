@@ -1,12 +1,13 @@
 #include "../include/worldDescription.h"
 
 
-WorldDescription::WorldDescription(XViraymain* viray, XGpio* gpio, unsigned gpioButtonsChannel) :
+WorldDescription::WorldDescription(XViraymain* viray, XGpio* gpio, I2C* i2c, unsigned gpioButtonsChannel) :
 	camera(viray, CAMERA_ARRAY_ADDR),
 	textureHelper((float_union*)TEXTURE_DATA_ADDR, (unsigned*)TEXTURE_DESCRIPTION_ADDR, (unsigned*)TEXTURE_BASE_ADDR_ADDR),
 	timer(XPAR_AXI_TIMER_0_DEVICE_ID, XPAR_AXI_TIMER_0_CLOCK_FREQ_HZ),
 	viray(viray),
 	gpio(gpio),
+	i2c(i2c),
 	gpioButtonsChannel(gpioButtonsChannel)
 {
 //	xil_printf("Initial clean-up\n\r");
@@ -42,6 +43,9 @@ WorldDescription::WorldDescription(XViraymain* viray, XGpio* gpio, unsigned gpio
 
 	XViraymain_Set_outColor(viray, (u32)OUT_COLOR_ADDR);
 //	xil_printf("COLOR ARRAY: %x\n\r", (u32)OUT_COLOR_ADDR);
+
+	// RESTART CLEANUP
+	XViraymain_DisableAutoRestart(viray);
 }
 
 WorldDescription::~WorldDescription()
@@ -141,5 +145,3 @@ void WorldDescription::DumpAll()
 	xil_printf("Dumping camera:\n\r");
 	camera.DumpAll();
 }
-
-

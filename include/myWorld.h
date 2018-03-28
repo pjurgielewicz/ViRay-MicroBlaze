@@ -6,7 +6,7 @@
 class MyWorld : public WorldDescription
 {
 public:
-	MyWorld(ObjectHandler* objs, LightHandler* lights,  XViraymain* viray = nullptr, XGpio* gpio = nullptr, unsigned gpioButtonsChannel = 1);
+	MyWorld(ObjectHandler* objs, LightHandler* lights,  XViraymain* viray = nullptr, XGpio* gpio = nullptr, I2C* i2c = nullptr, unsigned gpioButtonsChannel = 1);
 	virtual ~MyWorld();
 
 	void Animate(myType elapsedTime, unsigned gpioButtonsCode);

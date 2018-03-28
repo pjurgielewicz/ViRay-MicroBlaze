@@ -9,6 +9,7 @@
 #define SRC_ADV7511_SETUP_H_
 
 #include "xiic.h"
+#include "../include/worldDescription.h"
 
 #define IIC_SWITCH_ADDRESS 	0x74
 #define IIC_ADV7511_ADDRESS 0x39
@@ -35,6 +36,8 @@ public:
 	u8 EepromReadByte(u8 *BufferPtr, u8 ByteCount);
 	u8 EepromReadByte(AddressType Address, u8 *BufferPtr, u8 ByteCount);
 #endif
+
+	void Refresh();
 
 private:
 	/*****************************************************************************/
