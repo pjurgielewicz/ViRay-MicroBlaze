@@ -112,17 +112,17 @@ int VDMA::FrameSetup(XAxiVdma *InstancePtr) {
 	 * These addresses are physical addresses
 	 */
 	Addr = READ_ADDRESS_BASE + BlockStartOffset;
-	for (Index = 0; Index < NUMBER_OF_READ_FRAMES; ++Index)
+	for (Index = 0; Index < /*NUMBER_OF_READ_FRAMES*/4; ++Index)
 	{
 		ReadCfg.FrameStoreStartAddr[Index] = Addr;
-		//Addr += FRAME_HORIZONTAL_LEN * FRAME_VERTICAL_LEN;
+//		Addr += FRAME_HORIZONTAL_LEN * FRAME_VERTICAL_LEN;
 	}
 
 	Addr = WRITE_ADDRESS_BASE + BlockStartOffset;
-	for (Index = 0; Index < NUMBER_OF_WRITE_FRAMES; ++Index)
+	for (Index = 0; Index < /*NUMBER_OF_WRITE_FRAMES*/4; ++Index)
 	{
 		WriteCfg.FrameStoreStartAddr[Index] = Addr;
-		//Addr += FRAME_HORIZONTAL_LEN * FRAME_VERTICAL_LEN;
+//		Addr += FRAME_HORIZONTAL_LEN * FRAME_VERTICAL_LEN;
 	}
 
 	/* Set the buffer addresses for transfer in the DMA engine

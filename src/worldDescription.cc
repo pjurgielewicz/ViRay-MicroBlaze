@@ -96,6 +96,10 @@ void WorldDescription::RunViRay(bool enableAutoRestart)
 
 			// update takes 100s of us which is << 60 ms
 //			xil_printf("Last update duration: %d [us]\n\r", unsigned(elapsedTime * 1e6));
+
+//			u8 readReg;
+//			i2c->EepromReadByte((AddressType)0x3D, &readReg, 1);
+//			xil_printf("VIC: %X = %X\n\r", 0x3D, readReg);
 		}
 	}
 }
