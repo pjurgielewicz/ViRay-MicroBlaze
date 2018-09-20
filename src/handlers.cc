@@ -73,18 +73,18 @@ void ObjectTransformHandler::DumpAll()
  */
 MaterialHandler::MaterialHandler(unsigned char* ptr) : BaseHandler(ptr)
 {
-	k 							= vec3(0.5);
-	exp 						= 10.0;
+	k 							= vec3(0.5f, 0.5f, 0.5f);
+	exp 						= 10.0f;
 	specularTerms 				= k[2] + exp;
 
-	sigmaSqr 					= 0.0;
-	A 							= 1.0;
-	B							= 0.0;
+	sigmaSqr 					= 0.0f;
+	A 							= 1.0f;
+	B							= 0.0f;
 
-	ambientColor 				= vec3(0.1);
-	primaryDiffuseColor 		= vec3(0.8, 0.0, 0.0);
-	secondaryDiffuseColor 		= vec3(0.0, 0.8, 0.0);
-	specularColor 				= vec3(0.0, 0.0, 0.8);
+	ambientColor 				= vec3(0.1f);
+	primaryDiffuseColor 		= vec3(0.8f, 0.0f, 0.0f);
+	secondaryDiffuseColor 		= vec3(0.0f, 0.8f, 0.0f);
+	specularColor 				= vec3(0.0f, 0.0f, 0.8f);
 
 	resAmbientColor				= ambientColor * k[0];
 	resPrimaryDiffuseColor  	= primaryDiffuseColor * k[1];
@@ -99,12 +99,12 @@ MaterialHandler::MaterialHandler(unsigned char* ptr) : BaseHandler(ptr)
 	tmp.raw_bits				= 0;
 	materialModifier			= tmp.fp_num;
 
-	eta 						= 1.0;
-	absorptionCoeff 			= 1.0;
+	eta 						= 1.0f;
+	absorptionCoeff 			= 1.0f;
 	UpdateEtaAbsorption();
 
-	texturePos 					= vec3(0.0);
-	textureScale 				= vec3(1.0);
+	texturePos 					= vec3(0.0f);
+	textureScale 				= vec3(1.0f);
 }
 
 void MaterialHandler::SetK(const vec3& v, bool isImmediate)
@@ -406,7 +406,7 @@ void LightHandler::DumpAll()
 	SaveVector(position, 0);
 	SaveVector(direction, 12);
 	SaveVector(color, 24);
-	SaveVector(vec3(outerAngle, outerMinusInnerInv, 0.0), 36);
+	SaveVector(vec3(outerAngle, outerMinusInnerInv, 0.0f), 36);
 }
 
 /*
@@ -417,19 +417,19 @@ CameraHandler::CameraHandler(XViraymain* viray, unsigned char* ptr) :
 		BaseHandler(ptr),
 		viray(viray)
 {
-	zoom 		= 1.0;
-	nearPlane	= 1.0;
+	zoom 		= 1.0f;
+	nearPlane	= 1.0f;
 
 	position 	= vec3(0.0);
 
-	u			= vec3(1.0, 0.0, 0.0);
-	v 			= vec3(0.0, 1.0, 0.0);
-	w			= vec3(0.0, 0.0, 1.0);
+	u			= vec3(1.0f, 0.0f, 0.0f);
+	v 			= vec3(0.0f, 1.0f, 0.0f);
+	w			= vec3(0.0f, 0.0f, 1.0f);
 
 //	RebuildCameraFrame();
 
-	movementSpeed = myType(100.0);
-	rotationSpeed = myType(0.1);
+	movementSpeed = myType(100.0f);
+	rotationSpeed = myType(0.1f);
 }
 
 // setters' section

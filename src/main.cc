@@ -1,7 +1,3 @@
-/*
- * Empty C++ Application
- */
-
 #include "../include/adv7511_setup.h"
 #include "../include/vdma.h"
 
@@ -18,6 +14,7 @@
 #include "vec3.h"
 
 #include "../include/myWorld.h"
+#include "../include/faisWorld.h"
 
 /*
  * REQUIRED RESETS
@@ -28,6 +25,7 @@ unsigned LightHandler::nextIdx 	= 0;
 bool loopedExecution = true;
 
 //#define DEBUG_PATTERN
+#define NEW_SCENE
 
 #ifdef DEBUG_PATTERN
 #define FRAME_ADDR 			OUT_COLOR_ADDR
@@ -84,7 +82,11 @@ int main()
 	 * ========================================================================
 	 */
 #ifndef DEBUG_PATTERN
+#ifdef NEW_SCENE
+	FaisWorld myWorld(objs, lights, &viray, &gpio, &i2CObj, 1);
+#else
 	MyWorld myWorld(objs, lights, &viray, &gpio, &i2CObj, 1);
+#endif
 #endif
 	/*
 	 * ========================================================================

@@ -217,7 +217,7 @@ void MyWorld::SpawnObjects()
 	redBall.GetMaterialHandler().SetSpecularColor(vec3(1.0f));
 
 	redBall.GetMaterialHandler().SetKSpecular(0.0f);
-	redBall.GetMaterialHandler().SetSigmaSqr(0.75f);
+	redBall.GetMaterialHandler().SetSigmaSqr(1.0f);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -260,7 +260,7 @@ void MyWorld::SpawnObjects()
 	topBall.GetMaterialHandler().SetSecondaryDiffuseColor(vec3(0.6f, 0.6f, 0.6f));
 	topBall.GetMaterialHandler().SetSpecularColor(vec3(1.0f));
 	topBall.GetMaterialHandler().SetMaterialModifier(true, true, true);
-	topBall.GetMaterialHandler().SetAbsorptionCoeff(2.0f);
+	topBall.GetMaterialHandler().SetAbsorptionCoeff(0.5f);
 	topBall.GetMaterialHandler().SetEta(1.33f);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
